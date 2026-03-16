@@ -1,20 +1,39 @@
 class TransferPage:
     def __init__(self, page):
         self.page = page
-        self.transfer_button = page.locator("text=Transfer")
-        self.beneficiary_dropdown = page.locator("#beneficiary-select")
-        self.amount_input = page.locator("#amount")
-        self.continue_button = page.locator("text=Continue")
-        self.otp_input = page.locator("#otp")
-        self.confirm_button = page.locator("text=Confirm")
+        self.beneficiary_menu = page.locator("text=Beneficiary Management")
+        self.add_button = page.locator("button:has-text('Add Beneficiary')")
+        self.account_input = page.locator("input[name='account']")
+        self.ifsc_input = page.locator("input[name='ifsc']")
+        self.name_input = page.locator("input[name='name']")
+        self.save_button = page.locator("button:has-text('Save')")
         self.success_toast = page.locator(".toast-success")
-        self.error_message = page.locator(".error-message")
+        self.transfer_button = page.locator("text=Transfer")
+        self.amount_input = page.locator("input[name='amount']")
+        self.continue_button = page.locator("button:has-text('Continue')")
+        self.otp_input = page.locator("input[name='otp']")
+        self.confirm_button = page.locator("button:has-text('Confirm')")
+        self.confirmation_message = page.locator(".confirmation-message")
+        self.success_notification = page.locator(".notification-success")
 
-    def navigate_to_transfer(self):
+    def navigate_to_beneficiary_management(self):
+        self.beneficiary_menu.click()
+
+    def add_beneficiary(self, account, ifsc, name):
+        self.add_button.click()
+        self.account_input.fill(account)
+        self.ifsc_input.fill(ifsc)
+        self.name_input.fill(name)
+        self.save_button.click()
+
+    def beneficiary_in_list(self, name):
+        return self.page.locator(f".beneficiary-list >> text={name}")
+
+    def open_transfer_screen(self):
         self.transfer_button.click()
 
     def select_beneficiary(self, name):
-        self.beneficiary_dropdown.select_option(label=name)
+        self.page.locator(f".beneficiary-item >> text={name}").click()
 
     def enter_amount(self, amount):
         self.amount_input.fill(str(amount))
@@ -28,16 +47,5 @@ class TransferPage:
     def click_confirm(self):
         self.confirm_button.click()
 
-    def success_toast(self):
-        return self.success_toast
-
-    def error_message(self):
-        return self.error_message
-
     def transaction_in_history(self, amount, beneficiary):
-        # Placeholder for actual implementation
-        return self.page.locator(f"text={beneficiary} >> text={amount}")
-
-    def transaction_exists_in_history(self):
-        # Placeholder for checking any transaction exists after cancellation
-        return self.page.locator(".transaction-row").count() > 0
+        return self.page.locator(f".transaction-history >> text={beneficiary} >> text={amount}")

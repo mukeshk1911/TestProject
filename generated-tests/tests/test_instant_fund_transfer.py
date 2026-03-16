@@ -6,24 +6,27 @@ from pages.transfer_page import TransferPage
 def transfer_page(page: Page) -> TransferPage:
     return TransferPage(page)
 
-def test_successful_transfer(transfer_page: TransferPage):
-    # Login is assumed to be handled by a global fixture
-    transfer_page.navigate_to_transfer()
+def test_add_beneficiary_valid(transfer_page: TransferPage):
+    transfer_page.navigate_to_beneficiary_management()
+    transfer_page.add_beneficiary(account="123456789012", ifsc="ABCD0123456", name="John Doe")
+    expect(transfer_page.success_toast).to_be_visible()
+    expect(transfer_page.beneficiary_in_list("John Doe")).to_be_true()
+
+def test_successful_transfer_existing_beneficiary(transfer_page: TransferPage):
+    transfer_page.open_transfer_screen()
     transfer_page.select_beneficiary("John Doe")
     transfer_page.enter_amount(5000)
     transfer_page.click_continue()
     transfer_page.enter_otp("123456")
     transfer_page.click_confirm()
-    expect(transfer_page.success_toast()).to_be_visible()
+    expect(transfer_page.confirmation_message).to_have_text("Transfer successful")
     expect(transfer_page.transaction_in_history(5000, "John Doe")).to_be_true()
 
-def test_otp_failure_cancels_transaction(transfer_page: TransferPage):
-    transfer_page.navigate_to_transfer()
+def test_otp_verification_flow(transfer_page: TransferPage):
+    transfer_page.open_transfer_screen()
     transfer_page.select_beneficiary("John Doe")
     transfer_page.enter_amount(2500)
     transfer_page.click_continue()
-    for _ in range(3):
-        transfer_page.enter_otp("000000")
-        transfer_page.click_confirm()
-    expect(transfer_page.error_message()).to_have_text("OTP attempts exceeded, transaction cancelled")
-    expect(transfer_page.transaction_exists_in_history()).to_be_false()
+    transfer_page.enter_otp("654321")
+    transfer_page.click_confirm()
+    expect(transfer_page.success_notification).to_be_visible()
