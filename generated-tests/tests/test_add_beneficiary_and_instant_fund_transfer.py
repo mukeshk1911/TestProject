@@ -6,25 +6,23 @@ from pages.beneficiary_page import BeneficiaryPage
 def beneficiary_page(page: Page) -> BeneficiaryPage:
     return BeneficiaryPage(page)
 
-def test_add_beneficiary_success(beneficiary_page: BeneficiaryPage):
+def test_add_beneficiary_valid(beneficiary_page: BeneficiaryPage):
     beneficiary_page.goto_add_beneficiary()
-    beneficiary_page.enter_account_number("123456789012")
-    beneficiary_page.enter_ifsc("ABCD0123456")
-    beneficiary_page.enter_name("John Doe")
+    beneficiary_page.fill_account_number("123456789012")
+    beneficiary_page.fill_ifsc("ABCD0123456")
+    beneficiary_page.fill_name("John Doe")
     beneficiary_page.click_add()
-    expect(beneficiary_page.success_toast()).to_have_text("Beneficiary added successfully")
+    expect(beneficiary_page.success_message()).to_have_text("Beneficiary added successfully")
 
-def test_add_beneficiary_invalid_account(beneficiary_page: BeneficiaryPage):
-    beneficiary_page.goto_add_beneficiary()
-    beneficiary_page.enter_account_number("12AB34CD56")
-    beneficiary_page.enter_ifsc("ABCD0123456")
-    beneficiary_page.click_add()
-    expect(beneficiary_page.error_toast()).to_have_text("Invalid account number format")
+def test_transfer_within_limits(beneficiary_page: BeneficiaryPage):
+    beneficiary_page.select_beneficiary("John Doe")
+    beneficiary_page.enter_amount("5000")
+    beneficiary_page.proceed_to_otp()
+    beneficiary_page.enter_otp("123456")
+    beneficiary_page.confirm_transfer()
+    expect(beneficiary_page.transfer_success_message()).to_have_text("Transfer successful")
 
-def test_transfer_otp_lockout(page: Page):
-    # Assuming user is already on transfer screen with beneficiary selected
-    page.fill("input[name='otp']", "111111")
-    page.click("button:has-text('Verify OTP')")
-    page.click("button:has-text('Verify OTP')")
-    page.click("button:has-text('Verify OTP')")
-    expect(page.locator("text=Maximum OTP attempts exceeded. Transaction cancelled.")).to_be_visible()
+def test_otp_successful(beneficiary_page: BeneficiaryPage):
+    beneficiary_page.enter_otp("654321")
+    beneficiary_page.verify_otp()
+    expect(beneficiary_page.transaction_success_message()).to_have_text("Transaction completed")

@@ -1,4 +1,31 @@
 TC_ID,Feature,Module,Title,Precondition,Steps,Expected_Result,Test_Data,Priority,Type,Automation_Status,Tags
+"TC_001","Add Beneficiary and Instant Fund Transfer","Beneficiary Management","Verify adding a beneficiary with valid account number and IFSC","User is logged in and on the Add Beneficiary screen","Step 1: Enter a valid 12‑digit account number in the Account Number field
+Step 2: Enter a valid IFSC code (e.g., ABCD0123456) in the IFSC field
+Step 3: Enter beneficiary name in the Name field
+Step 4: Tap the 'Add Beneficiary' button","System shows a success message 'Beneficiary added successfully' and the new beneficiary appears in the beneficiary list","account_number=123456789012,ifsc=ABCD0123456,name=John Doe","High","Functional","To Automate","@regression, @smoke"
+"TC_002","Add Beneficiary and Instant Fund Transfer","Beneficiary Management","Verify transferring money to a registered beneficiary within limits","User is logged in, beneficiary has been added, and on the Transfer screen","Step 1: Select the previously added beneficiary from the list
+Step 2: Enter a transfer amount of ₹5,000
+Step 3: Tap 'Proceed' to trigger OTP generation
+Step 4: Enter the received OTP and confirm","Transfer is completed, a confirmation message 'Transfer successful' is displayed, and the transaction appears in the history instantly","beneficiary=John Doe,amount=5000,otp=123456","High","Functional","To Automate","@regression, @smoke"
+"TC_003","Add Beneficiary and Instant Fund Transfer","Beneficiary Management","Verify OTP verification succeeds and transaction completes","User is on the OTP entry screen after initiating a transfer","Step 1: Enter a correct OTP received on the registered mobile number
+Step 2: Tap the 'Verify OTP' button","OTP is validated, transaction is processed, and a success message is shown","otp=654321","High","Functional","To Automate","@regression"
+"TC_004","Add Beneficiary and Instant Fund Transfer","Beneficiary Management","Verify system rejects beneficiary with invalid account number format","User is logged in and on the Add Beneficiary screen","Step 1: Enter an invalid account number containing letters (e.g., 12AB34CD56)
+Step 2: Enter a valid IFSC code
+Step 3: Tap the 'Add Beneficiary' button","System displays an error message 'Invalid account number format' and does not add the beneficiary","account_number=12AB34CD56,ifsc=ABCD0123456","Medium","Negative","To Automate","@negative"
+"TC_005","Add Beneficiary and Instant Fund Transfer","Beneficiary Management","Verify transfer fails when amount exceeds the maximum limit","User is logged in, beneficiary exists, and on the Transfer screen","Step 1: Select the beneficiary
+Step 2: Enter a transfer amount of ₹150,000 (above ₹1,00,000 limit)
+Step 3: Tap 'Proceed'","System shows an error 'Transfer amount exceeds allowed limit' and prevents proceeding to OTP","amount=150000","Medium","Negative","To Automate","@negative"
+"TC_006","Add Beneficiary and Instant Fund Transfer","Beneficiary Management","Verify beneficiary can be added with account number at minimum and maximum length","User is logged in and on the Add Beneficiary screen","Step 1: Enter a 10‑digit account number (minimum length) and valid IFSC
+Step 2: Tap 'Add Beneficiary' and verify success
+Step 3: Delete the beneficiary
+Step 4: Enter a 16‑digit account number (maximum length) and valid IFSC
+Step 5: Tap 'Add Beneficiary' and verify success","Both additions succeed and the beneficiaries appear in the list","min_account=1234567890,max_account=1234567890123456,ifsc=ABCD0123456","Low","Edge","To Automate","@edge"
+"TC_007","Add Beneficiary and Instant Fund Transfer","Beneficiary Management","Verify OTP lockout after three consecutive failed attempts prevents transfer","User has initiated a transfer and is on the OTP entry screen","Step 1: Enter an incorrect OTP and tap 'Verify OTP'
+Step 2: Repeat step 1 two more times with wrong OTPs
+Step 3: Observe the system response after the third failure","System locks the transaction, displays 'Maximum OTP attempts exceeded. Transaction cancelled.' and does not allow further attempts","otp_wrong=111111","Critical","Security","To Automate","@security"
+"TC_008","Add Beneficiary and Instant Fund Transfer","Beneficiary Management","Verify Add Beneficiary API returns success for a valid payload","API endpoint /api/beneficiaries is reachable and user token is valid","Step 1: Send a POST request with JSON body containing accountNumber, ifscCode, and name
+Step 2: Include Authorization header with Bearer token
+Step 3: Observe the HTTP response","Response status 201 Created with body { ""status"": ""success"", ""message"": ""Beneficiary added"" }","{""accountNumber"":""123456789012"",""ifscCode"":""ABCD0123456"",""name"":""John Doe""}","High","API","To Automate","@api, @regression"
 "TC_001","Transfer Money and Beneficiary Management","Banking","Verify adding a beneficiary with valid account number and IFSC","User is logged in and on Add Beneficiary page","Step 1: Navigate to Add Beneficiary screen
 Step 2: Enter a valid account number (123456789012)
 Step 3: Enter a valid IFSC code (ABCD0123456)
@@ -16,8 +43,7 @@ Step 3: Read the displayed message","Message 'Transfer successful' (or equivalen
 "TC_004","Transfer Money and Beneficiary Management","Banking","Verify error when adding beneficiary with invalid account number format","User is logged in and on Add Beneficiary page","Step 1: Navigate to Add Beneficiary screen
 Step 2: Enter an invalid account number (ABC123)
 Step 3: Enter a valid IFSC code (ABCD0123456)
-Step 4: Click the 'Add Beneficiary' button
-Step 5: Observe validation error","System shows validation error stating account number must be numeric and 10‑16 digits","account_number=ABC123; ifsc=ABCD0123456","High","Negative","To Automate","@negative"
+Step 4: Click the 'Add Beneficiary' button","System shows validation error stating account number must be numeric and 10‑16 digits","account_number=ABC123; ifsc=ABCD0123456","High","Negative","To Automate","@negative"
 "TC_005","Transfer Money and Beneficiary Management","Banking","Verify error when transfer amount exceeds the maximum limit","User is logged in, beneficiary exists, and on Transfer Money page","Step 1: Select a beneficiary
 Step 2: Enter transfer amount of 150000 (exceeds ₹1,00,000 limit)
 Step 3: Click 'Proceed'
@@ -31,11 +57,57 @@ Step 5: Verify success notification","Transfer of ₹1 is processed successfully
 Step 2: Enter a valid transfer amount (5000)
 Step 3: Click 'Proceed' to request OTP
 Step 4: Enter an incorrect OTP (000000)
-Step 5: Click 'Confirm Transfer'
-Step 6: Observe error message","Transfer is not completed and an error message indicating invalid OTP is displayed","beneficiary_id=BEN123; amount=5000; otp=000000","Critical","Security","To Automate","@security"
+Step 5: Click 'Confirm Transfer'","Transfer is not completed and an error message indicating invalid OTP is displayed","beneficiary_id=BEN123; amount=5000; otp=000000","Critical","Security","To Automate","@security"
 "TC_008","Transfer Money and Beneficiary Management","Banking","Verify transaction history API returns the recent transfer record","A successful transfer has been made earlier in the session","Step 1: Send GET request to /api/transactions?userId=USER123
 Step 2: Receive JSON response
 Step 3: Validate that the latest entry matches the recent transfer details (amount, beneficiary, status)","API returns a list containing the newly created transaction with correct details and status 'Success'","endpoint=/api/transactions; userId=USER123","Medium","API","To Automate","@api, @regression"
+"TC_001","Instant Fund Transfer","Transfer & Beneficiary Management","Verify adding a beneficiary with valid details","User is logged in","Step 1: Navigate to Beneficiary Management screen
+Step 2: Click on 'Add Beneficiary' button
+Step 3: Enter a valid account number
+Step 4: Enter a valid IFSC code
+Step 5: Enter beneficiary name
+Step 6: Click 'Save'
+Step 7: Verify beneficiary appears in the list","Beneficiary is added successfully and a success toast is displayed","account=123456789012,ifsc=ABCD0123456,name=John Doe","High","Functional","To Automate","@regression, @smoke"
+"TC_002","Instant Fund Transfer","Transfer & Beneficiary Management","Verify successful money transfer to an existing beneficiary","User is logged in and has at least one beneficiary","Step 1: Open Transfer screen
+Step 2: Select a beneficiary from the list
+Step 3: Enter transfer amount within limits (e.g., 5000)
+Step 4: Click 'Continue'
+Step 5: Enter received OTP
+Step 6: Click 'Confirm'
+Step 7: Observe confirmation message","Transfer succeeds, confirmation message is shown and transaction appears in history","beneficiary=John Doe,amount=5000,otp=123456","High","Functional","To Automate","@regression, @smoke"
+"TC_003","Instant Fund Transfer","Transfer & Beneficiary Management","Verify OTP verification flow works for a transfer","User is logged in and has a beneficiary selected","Step 1: Initiate a transfer and enter a valid amount
+Step 2: Click 'Continue' to trigger OTP generation
+Step 3: Receive OTP on registered mobile
+Step 4: Enter the correct OTP
+Step 5: Click 'Confirm'
+Step 6: Verify success notification","Transfer is completed after correct OTP entry","amount=2500,otp=654321","Medium","Functional","To Automate","@regression"
+"TC_004","Instant Fund Transfer","Transfer & Beneficiary Management","Verify system rejects beneficiary with invalid account number format","User is logged in","Step 1: Navigate to Add Beneficiary screen
+Step 2: Enter an invalid account number (e.g., ABC123)
+Step 3: Enter a valid IFSC code
+Step 4: Enter beneficiary name
+Step 5: Click 'Save'
+Step 6: Observe validation message","Error message displayed: 'Account number must be numeric and 10‑16 digits'","account=ABC123,ifsc=ABCD0123456,name=Jane Doe","High","Negative","To Automate","@negative"
+"TC_005","Instant Fund Transfer","Transfer & Beneficiary Management","Verify transfer fails when amount exceeds the maximum limit","User is logged in and has a beneficiary","Step 1: Open Transfer screen
+Step 2: Select a beneficiary
+Step 3: Enter amount greater than ₹1,00,000 (e.g., 150000)
+Step 4: Click 'Continue'
+Step 5: Observe error message","Error message displayed: 'Transfer amount exceeds limit of ₹1,00,000'","amount=150000","High","Negative","To Automate","@negative"
+"TC_006","Instant Fund Transfer","Transfer & Beneficiary Management","Verify transfer of the minimum allowed amount succeeds","User is logged in and has a beneficiary","Step 1: Open Transfer screen
+Step 2: Select a beneficiary
+Step 3: Enter the minimum amount ₹1
+Step 4: Click 'Continue'
+Step 5: Enter valid OTP
+Step 6: Click 'Confirm'
+Step 7: Verify success notification","Transfer of ₹1 is processed successfully and appears in transaction history","amount=1,otp=111111","Medium","Edge","To Automate","@edge"
+"TC_007","Instant Fund Transfer","Transfer & Beneficiary Management","Verify transaction is cancelled after three consecutive OTP failures","User is logged in and has a beneficiary selected","Step 1: Initiate a transfer and enter a valid amount
+Step 2: Click 'Continue' to request OTP
+Step 3: Enter an incorrect OTP and click 'Confirm'
+Step 4: Repeat step 3 two more times with wrong OTPs
+Step 5: Observe system response after third failure","Error message displayed: 'OTP attempts exceeded, transaction cancelled' and no transaction is recorded","otp_wrong=000000","Critical","Security","To Automate","@security"
+"TC_008","Instant Fund Transfer","Transfer & Beneficiary Management","Verify Transaction History API returns the newly transferred transaction","User has performed a successful transfer via UI","Step 1: Capture transaction details (amount, beneficiary, timestamp) from UI
+Step 2: Send GET request to /api/transactions with valid auth token
+Step 3: Parse JSON response
+Step 4: Verify response contains a transaction matching the captured details","API response includes the recent transaction with correct amount and beneficiary name","endpoint=/api/transactions,authToken=Bearer abc123","Medium","API","To Automate","@api"
 "TC_001","Add Beneficiary","Beneficiary Management","Verify user can add beneficiary with valid account number and IFSC","User is logged in and on the Add Beneficiary page","Step 1: Navigate to the Beneficiary Management section
 Step 2: Click on 'Add Beneficiary' button
 Step 3: Enter a valid account number (1234567890)
@@ -88,12 +160,11 @@ Step 5: Click 'Confirm Transfer'
 Step 6: Verify confirmation message is shown","Transfer is completed successfully and confirmation message is displayed","beneficiary_id=BEN123; amount=5000; otp=123456","High","Functional","To Automate","@regression, @smoke"
 "TC_003","Transfer Money and Beneficiary Management","Banking","Verify success message is displayed after a completed transfer","User has just completed a successful transfer","Step 1: Observe the UI after confirming the transfer
 Step 2: Locate the notification area
-Step 3: Read the displayed message","Message 'Transfer successful' (or equivalent) is shown to the user","N/A","Medium","Functional","To Automate","@regression"
+Step 3: Read the displayed message","Message 'Transfer successful' is shown to the user","N/A","Medium","Functional","To Automate","@regression"
 "TC_004","Transfer Money and Beneficiary Management","Banking","Verify error when adding beneficiary with invalid account number format","User is logged in and on Add Beneficiary page","Step 1: Navigate to Add Beneficiary screen
 Step 2: Enter an invalid account number (ABC123)
 Step 3: Enter a valid IFSC code (ABCD0123456)
-Step 4: Click the 'Add Beneficiary' button
-Step 5: Observe validation error","System shows validation error stating account number must be numeric and 10‑16 digits","account_number=ABC123; ifsc=ABCD0123456","High","Negative","To Automate","@negative"
+Step 4: Click the 'Add Beneficiary' button","System shows validation error stating account number must be numeric and 10‑16 digits","account_number=ABC123; ifsc=ABCD0123456","High","Negative","To Automate","@negative"
 "TC_005","Transfer Money and Beneficiary Management","Banking","Verify error when transfer amount exceeds the maximum limit","User is logged in, beneficiary exists, and on Transfer Money page","Step 1: Select a beneficiary
 Step 2: Enter transfer amount of 150000 (exceeds ₹1,00,000 limit)
 Step 3: Click 'Proceed'
@@ -107,45 +178,75 @@ Step 5: Verify success notification","Transfer of ₹1 is processed successfully
 Step 2: Enter a valid transfer amount (5000)
 Step 3: Click 'Proceed' to request OTP
 Step 4: Enter an incorrect OTP (000000)
-Step 5: Click 'Confirm Transfer'
-Step 6: Observe error message","Transfer is not completed and an error message indicating invalid OTP is displayed","beneficiary_id=BEN123; amount=5000; otp=000000","Critical","Security","To Automate","@security"
+Step 5: Click 'Confirm Transfer'","Transfer is not completed and an error message indicating invalid OTP is displayed","beneficiary_id=BEN123; amount=5000; otp=000000","Critical","Security","To Automate","@security"
 "TC_008","Transfer Money and Beneficiary Management","Banking","Verify transaction history API returns the recent transfer record","A successful transfer has been made earlier in the session","Step 1: Send GET request to /api/transactions?userId=USER123
 Step 2: Receive JSON response
 Step 3: Validate that the latest entry matches the recent transfer details (amount, beneficiary, status)","API returns a list containing the newly created transaction with correct details and status 'Success'","endpoint=/api/transactions; userId=USER123","Medium","API","To Automate","@api, @regression"
-"TC_001","Transfer Money and Beneficiary Management","Banking","Verify successful transfer appears in transaction history","User is logged in and has sufficient balance","Step 1: Navigate to Transfer Money page
-Step 2: Select a valid beneficiary
-Step 3: Enter amount 1000 and click Proceed
-Step 4: Enter correct OTP and confirm transfer
-Step 5: Send GET request to /api/transactions?userId=USER123
-Step 6: Validate the latest transaction record matches the transfer details","Transfer completes successfully and the transaction appears as the most recent entry with status 'Success'","userId=USER123; beneficiary_id=BEN123; amount=1000; otp=123456","High","Functional","To Automate","@regression, @smoke, @functional"
-"TC_002","Transfer Money and Beneficiary Management","Banking","Verify OTP verification allows transfer when OTP is correct","User is logged in and beneficiary exists","Step 1: Select the beneficiary
-Step 2: Enter a valid transfer amount (5000)
-Step 3: Click 'Proceed' to request OTP
-Step 4: Enter the correct OTP (123456)
-Step 5: Click 'Confirm Transfer'
-Step 6: Observe transfer success message","Transfer is completed and a success confirmation is displayed","beneficiary_id=BEN123; amount=5000; otp=123456","High","Functional","To Automate","@functional, @smoke"
-"TC_003","Transfer Money and Beneficiary Management","Banking","Verify beneficiary can be added successfully","User is logged in","Step 1: Navigate to Beneficiary Management page
-Step 2: Click 'Add Beneficiary'
-Step 3: Fill in beneficiary details (name, account number, bank)
-Step 4: Click 'Save'
-Step 5: Verify beneficiary appears in the beneficiary list","New beneficiary is saved and displayed in the list","name=John Doe; account=9876543210; bank=ABC Bank","High","Functional","To Automate","@functional, @regression"
-"TC_004","Transfer Money and Beneficiary Management","Banking","Verify transfer fails when balance is insufficient","User is logged in with balance less than transfer amount","Step 1: Navigate to Transfer Money page
-Step 2: Select a beneficiary
-Step 3: Enter amount 100000 (greater than available balance)
-Step 4: Click 'Proceed'
-Step 5: Observe error message","Transfer is blocked and an error message 'Insufficient balance' is displayed","beneficiary_id=BEN123; amount=100000","Medium","Negative","To Automate","@negative, @regression"
-"TC_005","Transfer Money and Beneficiary Management","Banking","Verify transaction history API returns error for invalid userId","User is logged in","Step 1: Send GET request to /api/transactions?userId=INVALID_USER
-Step 2: Receive JSON response
-Step 3: Validate response status code and error message","API returns 400 Bad Request with error message 'Invalid userId'","endpoint=/api/transactions; userId=INVALID_USER","Medium","Negative","To Automate","@api, @negative"
-"TC_006","Transfer Money and Beneficiary Management","Banking","Verify transaction history API returns empty list when no transactions exist","New user with no prior transfers","Step 1: Send GET request to /api/transactions?userId=NEWUSER123
-Step 2: Receive JSON response
-Step 3: Validate that the returned transaction array is empty","API returns an empty transaction list with status 200","endpoint=/api/transactions; userId=NEWUSER123","Low","Edge","To Automate","@api, @edge"
+"TC_001","Add Beneficiary","Beneficiary Management","Verify adding a beneficiary with valid account number and IFSC","User is logged in and on the Add Beneficiary page","Step 1: Enter a valid account number ""123456789012"" in the Account Number field
+Step 2: Enter a valid IFSC code ""ABCD0123456"" in the IFSC Code field
+Step 3: Click the ""Add Beneficiary"" button
+Step 4: Observe the confirmation message","System shows ""Beneficiary added successfully"" message and the new beneficiary appears in the list","accountNumber=123456789012&ifsc=ABCD0123456","High","Functional","To Automate","@regression, @smoke"
+"TC_002","Add Beneficiary","Beneficiary Management","Verify system validates correct account number format before submission","User is logged in and on the Add Beneficiary page","Step 1: Enter an account number with exactly 12 digits ""987654321098""
+Step 2: Move focus away from the Account Number field
+Step 3: Verify that no validation error is displayed
+Step 4: Enter a valid IFSC code ""WXYZ0001234""
+Step 5: Click the ""Add Beneficiary"" button
+Step 6: Verify that the beneficiary is added successfully","No validation error for account number and beneficiary is added successfully","accountNumber=987654321098&ifsc=WXYZ0001234","Medium","Functional","To Automate","@regression"
+"TC_003","Add Beneficiary","Beneficiary Management","Verify newly added beneficiary appears in the beneficiary list","User has added a beneficiary successfully","Step 1: Navigate to the Beneficiary List page
+Step 2: Search for the beneficiary using the account number ""123456789012""
+Step 3: Verify that the beneficiary record is displayed with correct IFSC code","Beneficiary is listed with account number 123456789012 and IFSC ABCD0123456","searchAccount=123456789012","Low","Functional","To Automate","@regression"
+"TC_004","Add Beneficiary","Beneficiary Management","Verify error message when entering an invalid account number format","User is logged in and on the Add Beneficiary page","Step 1: Enter an invalid account number ""12AB34"" containing letters
+Step 2: Enter a valid IFSC code ""EFGH0005678""
+Step 3: Click the ""Add Beneficiary"" button
+Step 4: Observe the validation message","System displays validation error ""Invalid account number format"" and does not add beneficiary","accountNumber=12AB34&ifsc=EFGH0005678","High","Negative","To Automate","@negative, @regression"
+"TC_005","Add Beneficiary","Beneficiary Management","Verify error message when entering an invalid IFSC code","User is logged in and on the Add Beneficiary page","Step 1: Enter a valid account number ""123456789012""
+Step 2: Enter an invalid IFSC code ""12345"" (less than required length)
+Step 3: Click the ""Add Beneficiary"" button
+Step 4: Observe the validation message","System displays validation error ""Invalid IFSC code"" and prevents submission","accountNumber=123456789012&ifsc=12345","Medium","Negative","To Automate","@negative, @regression"
+"TC_006","Add Beneficiary","Beneficiary Management","Verify adding a beneficiary with maximum length account number","User is logged in and on the Add Beneficiary page","Step 1: Enter an 18‑digit account number ""123456789012345678"" (maximum allowed length)
+Step 2: Enter a valid IFSC code ""IJKL0987654""
+Step 3: Click the ""Add Beneficiary"" button
+Step 4: Observe the system response","Beneficiary is added successfully and no truncation or error occurs","accountNumber=123456789012345678&ifsc=IJKL0987654","Low","Edge","To Automate","@edge, @regression"
+"TC_007","Add Beneficiary","Beneficiary Management","Verify that beneficiary addition is blocked when user session has expired","User logs in, then session expires (e.g., after timeout)","Step 1: Attempt to navigate to the Add Beneficiary page after session expiration
+Step 2: Fill in valid account number ""123456789012"" and IFSC ""MNOP0123456""
+Step 3: Click the ""Add Beneficiary"" button
+Step 4: Observe the system behavior","System redirects to login page or shows ""Session expired"" message; beneficiary is not added","accountNumber=123456789012&ifsc=MNOP0123456","High","Security","To Automate","@security, @regression"
+"TC_008","Add Beneficiary","Beneficiary Management","Verify Add Beneficiary API returns success for valid payload and proper error for invalid payload","Valid authentication token is available","Step 1: Send POST request to /api/beneficiaries with JSON body {""accountNumber"":""123456789012"",""ifsc"":""QRST0001234""}
+Step 2: Verify response status code is 201 and response body contains success message
+Step 3: Send POST request with invalid account number {""accountNumber"":""abc123"",""ifsc"":""QRST0001234""}
+Step 4: Verify response status code is 400 and error message indicates invalid account number","First request succeeds with 201 Created; second request fails with 400 Bad Request and appropriate error","validPayload={""accountNumber"":""123456789012"",""ifsc"":""QRST0001234""}; invalidPayload={""accountNumber"":""abc123"",""ifsc"":""QRST0001234""}","Medium","API","To Automate","@api, @regression"
+"TC_001","Transfer Money and Beneficiary Management","Banking","Verify adding a new beneficiary with valid account number and IFSC","User is logged in and on Beneficiary Management page","Step 1: Navigate to Add Beneficiary form
+Step 2: Enter a valid beneficiary name
+Step 3: Enter a numeric account number between 10-16 digits
+Step 4: Enter a valid IFSC code
+Step 5: Click the Save button","Beneficiary is saved successfully and appears in the beneficiary list","name=John Doe; accountNumber=123456789012; ifsc=ABCD0123456","High","Functional","To Automate","@regression, @smoke"
+"TC_002","Transfer Money and Beneficiary Management","Banking","Verify successful money transfer within allowed amount range","User is logged in, beneficiary exists, and on Transfer Money page","Step 1: Select an existing beneficiary
+Step 2: Enter a transfer amount of 5000
+Step 3: Click Proceed to request OTP
+Step 4: Enter a valid OTP received
+Step 5: Click Confirm Transfer","Transfer completes, success message is displayed and balance is updated","beneficiaryId=BEN123; amount=5000; otp=123456","High","Functional","To Automate","@regression, @smoke"
+"TC_003","Transfer Money and Beneficiary Management","Banking","Verify success notification is shown after a completed transfer","User has completed a transfer successfully","Step 1: Observe the UI after confirming the transfer
+Step 2: Locate the notification toast/message area
+Step 3: Verify the message text","Notification displays ""Transfer successful"" with green styling","expectedMessage=Transfer successful","Medium","Functional","To Automate","@regression"
+"TC_004","Transfer Money and Beneficiary Management","Banking","Verify adding beneficiary fails when account number is non‑numeric","User is logged in and on Add Beneficiary form","Step 1: Enter beneficiary name
+Step 2: Enter account number containing alphabetic characters (e.g., ABCD1234)
+Step 3: Enter a valid IFSC code
+Step 4: Click Save","Form shows validation error ""Account number must be numeric and 10‑16 digits"" and beneficiary is not saved","name=Jane Doe; accountNumber=ABCD1234; ifsc=WXYZ0987654","High","Negative","To Automate","@negative, @regression"
+"TC_005","Transfer Money and Beneficiary Management","Banking","Verify transfer is blocked when amount exceeds the maximum limit","User is logged in, beneficiary exists, and on Transfer Money page","Step 1: Select a beneficiary
+Step 2: Enter transfer amount of 150000 (greater than ₹100,000)
+Step 3: Click Proceed
+Step 4: Observe validation message","System displays error ""Amount exceeds allowed limit of ₹100,000"" and does not request OTP","beneficiaryId=BEN123; amount=150000","High","Negative","To Automate","@negative, @regression"
+"TC_006","Transfer Money and Beneficiary Management","Banking","Verify transfer works with minimum and maximum allowed amounts","User is logged in, beneficiary exists, and on Transfer Money page","Step 1: Select a beneficiary
+Step 2: Enter transfer amount of 1 (minimum allowed)
+Step 3: Click Proceed, enter valid OTP, and confirm
+Step 4: Verify success notification
+Step 5: Repeat steps 1‑4 with amount 100000 (maximum allowed)","Both transfers complete successfully with appropriate success messages","beneficiaryId=BEN123; amountMin=1; amountMax=100000; otp=123456","Medium","Edge","To Automate","@edge, @regression"
 "TC_007","Transfer Money and Beneficiary Management","Banking","Verify OTP verification blocks transfer when OTP is incorrect","User is logged in, beneficiary exists, and on Transfer Money page","Step 1: Select the beneficiary
 Step 2: Enter a valid transfer amount (5000)
-Step 3: Click 'Proceed' to request OTP
+Step 3: Click Proceed to request OTP
 Step 4: Enter an incorrect OTP (000000)
-Step 5: Click 'Confirm Transfer'
-Step 6: Observe error message","Transfer is not completed and an error message indicating invalid OTP is displayed","beneficiary_id=BEN123; amount=5000; otp=000000","Critical","Security","To Automate","@security, @negative"
+Step 5: Click Confirm Transfer
+Step 6: Observe error message","Transfer is not completed and error message ""Invalid OTP"" is displayed","beneficiaryId=BEN123; amount=5000; otp=000000","Critical","Security","To Automate","@security, @regression"
 "TC_008","Transfer Money and Beneficiary Management","Banking","Verify transaction history API returns the recent transfer record","A successful transfer has been made earlier in the session","Step 1: Send GET request to /api/transactions?userId=USER123
 Step 2: Receive JSON response
-Step 3: Validate that the latest entry matches the recent transfer details (amount, beneficiary, status)","API returns a list containing the newly created transaction with correct details and status 'Success'","endpoint=/api/transactions; userId=USER123","Medium","API","To Automate","@api, @regression"
+Step 3: Validate that the latest entry matches the recent transfer details (amount, beneficiary, status)","API returns a list containing the newly created transaction with correct details and status ""Success""","endpoint=/api/transactions; userId=USER123","Medium","API","To Automate","@api, @regression"

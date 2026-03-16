@@ -1,17 +1,17 @@
 class TransferPage:
     def __init__(self, page):
         self.page = page
-        self.transfer_url = "/transfer"
-        self.beneficiary_dropdown = self.page.locator("#beneficiary-select")
-        self.amount_input = self.page.locator("#amount")
-        self.continue_button = self.page.locator("button:has-text('Continue')")
-        self.otp_input = self.page.locator("#otp")
-        self.confirm_button = self.page.locator("button:has-text('Confirm')")
-        self.success_toast = self.page.locator(".toast-success")
-        self.error_toast = self.page.locator(".toast-error")
+        self.transfer_button = page.locator("text=Transfer")
+        self.beneficiary_dropdown = page.locator("#beneficiary-select")
+        self.amount_input = page.locator("#amount")
+        self.continue_button = page.locator("text=Continue")
+        self.otp_input = page.locator("#otp")
+        self.confirm_button = page.locator("text=Confirm")
+        self.success_toast = page.locator(".toast-success")
+        self.error_message = page.locator(".error-message")
 
     def navigate_to_transfer(self):
-        self.page.goto(self.transfer_url)
+        self.transfer_button.click()
 
     def select_beneficiary(self, name):
         self.beneficiary_dropdown.select_option(label=name)
@@ -25,16 +25,19 @@ class TransferPage:
     def enter_otp(self, otp):
         self.otp_input.fill(otp)
 
-    def confirm_transfer(self):
+    def click_confirm(self):
         self.confirm_button.click()
 
     def success_toast(self):
         return self.success_toast
 
     def error_message(self):
-        return self.error_toast
+        return self.error_message
 
     def transaction_in_history(self, amount, beneficiary):
-        # Simplified check – in real tests would query UI or API
-        row = self.page.locator(f"tr:has-text('{beneficiary}') >> td:has-text('{amount}')")
-        return row.count() > 0
+        # Placeholder for actual implementation
+        return self.page.locator(f"text={beneficiary} >> text={amount}")
+
+    def transaction_exists_in_history(self):
+        # Placeholder for checking any transaction exists after cancellation
+        return self.page.locator(".transaction-row").count() > 0

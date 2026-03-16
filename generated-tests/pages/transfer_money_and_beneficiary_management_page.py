@@ -1,13 +1,30 @@
 class TransferPage:
     def __init__(self, page):
         self.page = page
-        self.beneficiary_dropdown = page.locator('#beneficiary')
-        self.amount_input = page.locator('#amount')
-        self.proceed_button = page.locator('button:has-text("Proceed")')
-        self.otp_input = page.locator('#otp')
-        self.confirm_button = page.locator('button:has-text("Confirm Transfer")')
-        self.success_msg = page.locator('.notification.success')
-        self.error_msg = page.locator('.notification.error')
+        self.add_beneficiary_button = page.locator("button#addBeneficiary")
+        self.account_input = page.locator("input#accountNumber")
+        self.ifsc_input = page.locator("input#ifscCode")
+        self.submit_button = page.locator("button#submitBeneficiary")
+        self.success_notification = page.locator("div.success")
+        self.error_message = page.locator("div.error")
+        self.beneficiary_dropdown = page.locator("select#beneficiaryList")
+        self.amount_input = page.locator("input#transferAmount")
+        self.proceed_button = page.locator("button#proceed")
+        self.otp_input = page.locator("input#otp")
+        self.confirm_button = page.locator("button#confirmTransfer")
+        self.confirmation_message = page.locator("div.confirmation")
+
+    def go_to_add_beneficiary(self):
+        self.page.goto("https://bank.example.com/add-beneficiary")
+
+    def enter_account_number(self, account):
+        self.account_input.fill(account)
+
+    def enter_ifsc(self, ifsc):
+        self.ifsc_input.fill(ifsc)
+
+    def submit_beneficiary(self):
+        self.submit_button.click()
 
     def select_beneficiary(self, beneficiary_id):
         self.beneficiary_dropdown.select_option(beneficiary_id)
@@ -15,7 +32,7 @@ class TransferPage:
     def enter_amount(self, amount):
         self.amount_input.fill(str(amount))
 
-    def click_proceed(self):
+    def proceed(self):
         self.proceed_button.click()
 
     def enter_otp(self, otp):
@@ -23,32 +40,3 @@ class TransferPage:
 
     def confirm_transfer(self):
         self.confirm_button.click()
-
-    def success_message(self):
-        return self.success_msg
-
-    def error_message(self):
-        return self.error_msg
-
-class BeneficiaryPage:
-    def __init__(self, page):
-        self.page = page
-        self.add_button = page.locator('button:has-text("Add Beneficiary")')
-        self.account_input = page.locator('#accountNumber')
-        self.ifsc_input = page.locator('#ifsc')
-        self.success_notif = page.locator('.notification.success')
-
-    def navigate_to_add(self):
-        self.page.goto('https://bank.example.com/beneficiaries/add')
-
-    def enter_account_number(self, account_number):
-        self.account_input.fill(account_number)
-
-    def enter_ifsc(self, ifsc):
-        self.ifsc_input.fill(ifsc)
-
-    def submit(self):
-        self.add_button.click()
-
-    def success_notification(self):
-        return self.success_notif
