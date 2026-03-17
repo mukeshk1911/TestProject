@@ -1,46 +1,37 @@
 Feature: Transfer Money and Beneficiary Management
-  As a banking user
-  I want to manage beneficiaries and transfer money securely
-  So that I can send funds to my contacts safely
-
   Background:
-    Given the user is logged in
-    And the user is on the dashboard page
+    Given the user is logged into the mobile banking app
+    And the user is on the appropriate page for the scenario
 
-  Scenario: Add beneficiary with valid details
-    When the user navigates to the Add Beneficiary screen
-    And the user enters a valid account number "123456789012"
-    And the user enters a valid IFSC code "ABCD0123456"
-    And the user clicks the "Add Beneficiary" button
-    Then a success notification "Beneficiary added successfully" is displayed
+  Scenario: Verify adding a beneficiary with valid details
+    When the user navigates to the Add Beneficiary page
+    And enters a valid account number "123456789012"
+    And enters a valid IFSC code "MNOP0123456"
+    And enters beneficiary name "John Doe"
+    And clicks the "Add Beneficiary" button
+    Then a success toast is displayed
+    And the new beneficiary appears in the beneficiary list
 
-  Scenario: Transfer money with correct OTP
-    Given a beneficiary "BEN123" exists
-    When the user selects beneficiary "BEN123"
-    And the user enters transfer amount "5000"
-    And the user clicks "Proceed"
-    And the user enters OTP "123456"
-    And the user clicks "Confirm Transfer"
-    Then a confirmation message "Transfer successful" is displayed
+  Scenario: Verify transferring money within limits with correct OTP
+    When the user selects an existing beneficiary
+    And enters transfer amount "5000"
+    And proceeds to request OTP
+    And provides the correct OTP "123456"
+    And confirms the transfer
+    Then a confirmation message "Transfer successful" is shown
 
-  Scenario: Transfer blocked when OTP is incorrect
-    Given a beneficiary "BEN123" exists
-    When the user selects beneficiary "BEN123"
-    And the user enters transfer amount "5000"
-    And the user clicks "Proceed"
-    And the user enters OTP "000000"
-    And the user clicks "Confirm Transfer"
-    Then an error message "Invalid OTP" is displayed
+  Scenario: Verify error when adding beneficiary with invalid account number
+    When the user navigates to the Add Beneficiary page
+    And enters an invalid account number "ABC123"
+    And enters a valid IFSC code "ABCD0123456"
+    And clicks the "Add Beneficiary" button
+    Then a validation error stating "Account number must be numeric and 10‑16 digits" is displayed
 
-  Scenario Outline: Add beneficiary with invalid account number format
-    When the user navigates to the Add Beneficiary screen
-    And the user enters an invalid account number "<account>"
-    And the user enters a valid IFSC code "ABCD0123456"
-    And the user clicks the "Add Beneficiary" button
-    Then a validation error "Account number must be numeric and 10‑16 digits" is displayed
+  Scenario Outline: Verify transaction history API returns recent transfer
+    Given a successful transfer of amount <amount> to beneficiary <beneficiary_id>
+    When the user sends a GET request to "/api/transactions?userId=<userId>"
+    Then the response contains a transaction with amount <amount>, beneficiary <beneficiary_id>, and status "Success"
 
     Examples:
-      | account   |
-      | ABC123    |
-      | 12345     |
-      | 12345678901234567 |
+      | amount | beneficiary_id | userId |
+      | 5000   | BEN123         | USER123 |
