@@ -1,46 +1,39 @@
 Feature: Transfer Money and Beneficiary Management
   As a banking user
-  I want to manage beneficiaries and perform transfers securely
-  So that I can move money safely
+  I want to manage beneficiaries and perform transfers
+  So that I can move money securely
 
   Background:
     Given the user is logged in
-    And the user is on the dashboard
+    And the user is on the appropriate page
 
-  Scenario: Add a beneficiary with valid details
-    When the user navigates to the Add Beneficiary screen
-    And the user enters a valid account number "123456789012"
-    And the user enters a valid IFSC code "ABCD0123456"
-    And the user clicks the "Add Beneficiary" button
-    Then a success message "Beneficiary added successfully" is displayed
+  Scenario: Verify adding a new beneficiary with valid account number and IFSC
+    When the user navigates to the Add Beneficiary form
+    And the user enters a valid name, numeric account number and a correct IFSC
+    And the user clicks the Save button
+    Then the beneficiary should be saved successfully and appear in the list
 
-  Scenario: Transfer money within limits with correct OTP
-    Given a beneficiary "BEN123" exists
-    When the user selects beneficiary "BEN123"
-    And the user enters transfer amount "5000"
-    And the user clicks "Proceed"
-    And the user enters the correct OTP "123456"
-    And the user clicks "Confirm Transfer"
-    Then a confirmation message "Transfer successful" is displayed
+  Scenario: Verify successful money transfer within allowed amount range
+    When the user selects an existing beneficiary
+    And the user enters an amount of 5000
+    And the user proceeds and provides a valid OTP
+    And the user confirms the transfer
+    Then the transfer should complete with a success message and the balance should be updated
 
-  Scenario: Transfer is blocked when OTP is incorrect
-    Given a beneficiary "BEN123" exists
-    When the user selects beneficiary "BEN123"
-    And the user enters transfer amount "5000"
-    And the user clicks "Proceed"
+  Scenario: Verify OTP verification blocks transfer when OTP is incorrect
+    When the user selects a beneficiary and enters an amount of 5000
+    And the user proceeds to request OTP
     And the user enters an incorrect OTP "000000"
-    And the user clicks "Confirm Transfer"
-    Then an error message "Invalid OTP" is displayed
+    And the user attempts to confirm the transfer
+    Then the transfer should be blocked and an "Invalid OTP" error message should be shown
 
-  Scenario Outline: Add beneficiary with invalid account number formats
-    When the user navigates to the Add Beneficiary screen
-    And the user enters an invalid account number "<account>"
-    And the user enters a valid IFSC code "ABCD0123456"
-    And the user clicks the "Add Beneficiary" button
-    Then a validation error "Account number must be numeric and 10‑16 digits" is displayed
+  Scenario Outline: Verify transfer works with minimum and maximum allowed amounts
+    When the user selects a beneficiary
+    And the user enters an amount of <amount>
+    And the user proceeds, enters a valid OTP and confirms
+    Then the transfer should complete successfully with a success notification
 
     Examples:
-      | account   |
-      | ABC123    |
-      | 12345     |
-      | 12345678901234567 |
+      | amount |
+      | 1      |
+      | 100000 |
