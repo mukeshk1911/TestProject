@@ -1,45 +1,42 @@
 Feature: Instant Fund Transfer
-  As a user of the banking app
-  I want to manage beneficiaries and perform transfers securely
-  So that I can move money reliably
+  As a registered user
+  I want to manage beneficiaries and perform fund transfers
+  So that I can send money securely and efficiently
 
   Background:
     Given the user is logged in
     And the user has at least one beneficiary
 
-  Scenario: Add a beneficiary with valid details
+  Scenario: Verify adding a beneficiary with valid details
     When the user navigates to the Beneficiary Management screen
-    And clicks on "Add Beneficiary"
-    And enters a valid account number, IFSC code and name
-    And saves the beneficiary
+    And the user clicks on "Add Beneficiary"
+    And the user enters a valid account number, IFSC code and name
+    And the user saves the beneficiary
     Then a success toast is displayed
     And the new beneficiary appears in the list
 
-  Scenario: Transfer money to an existing beneficiary
+  Scenario: Verify successful money transfer to an existing beneficiary
     When the user opens the Transfer screen
-    And selects a beneficiary
-    And enters a valid amount within limits
-    And proceeds to OTP verification
-    And enters the correct OTP
-    Then the transfer is successful
+    And the user selects an existing beneficiary
+    And the user enters a valid amount within limits
+    And the user proceeds and enters the correct OTP
+    Then the transfer is completed
+    And a confirmation message is shown
     And the transaction appears in history
 
-  Scenario Outline: Reject invalid beneficiary details
-    When the user attempts to add a beneficiary with account "<account>" and IFSC "<ifsc>"
-    Then the system shows validation error "<error_message>"
+  Scenario: Verify OTP verification flow works for a transfer
+    When the user initiates a transfer with a valid amount
+    And the user requests OTP
+    And the user enters the correct OTP received on mobile
+    Then the transfer succeeds
+    And a success notification is displayed
+
+  Scenario Outline: Verify transfer amount validation
+    When the user attempts to transfer <amount>
+    Then the system should display <message>
 
     Examples:
-      | account   | ifsc          | error_message                                          |
-      | ABC123    | ABCD0123456   | Account number must be numeric and 10‑16 digits       |
-      | 123456789 | XYZ1234567    | IFSC code format is invalid                             |
-
-  Scenario: Cancel transaction after three OTP failures
-    When the user initiates a transfer
-    And enters an incorrect OTP three times
-    Then the system displays "OTP attempts exceeded, transaction cancelled"
-    And no transaction is recorded
-
-  Scenario: Verify transaction appears in history via API
-    Given a successful transfer has been made via UI
-    When the user calls GET /api/transactions with a valid token
-    Then the response contains the recent transaction with correct amount and beneficiary
+      | amount | message                                          |
+      | 150000| Transfer amount exceeds limit of ₹1,00,000       |
+      | 1     | Transfer of ₹1 is processed successfully       |
+      | 0     | Transfer amount must be greater than zero        |
