@@ -1,39 +1,41 @@
 Feature: Instant Fund Transfer
-  As a banking customer
-  I want to perform instant fund transfers and manage beneficiaries
-  So that I can move money quickly and securely
+  As a banking user
+  I want to add beneficiaries and transfer money instantly
+  So that I can manage my finances efficiently
 
   Background:
-    Given the user is logged in
+    Given the user is logged into the mobile banking app
+    And the user has at least one registered beneficiary
 
-  Scenario: Verify adding a new beneficiary with valid details
-    When the user clicks the 'Add Beneficiary' button
-    And fills in valid account number, IFSC code, and beneficiary name
-    And clicks the 'Save' button
-    Then a confirmation toast is displayed
-    And the new beneficiary appears in the beneficiary list
+  Scenario: Add beneficiary with valid details
+    When the user navigates to the Add Beneficiary screen
+    And the user enters a valid account number "123456789012"
+    And the user enters a valid IFSC code "ABCD0123456"
+    And the user taps the Save button
+    Then the beneficiary should be added successfully
+    And the beneficiary appears in the beneficiary list
 
-  Scenario: Verify successful instant fund transfer with correct OTP
-    When the user navigates to the Transfer Money page
-    And selects a beneficiary
-    And enters a valid amount of 5000
-    And clicks 'Proceed' to request OTP
-    And enters the correct OTP "123456"
-    And clicks 'Confirm Transfer'
-    Then a success message is displayed
-    And the transaction appears in the transaction history
+  Scenario: Transfer money within allowed limits
+    When the user selects a beneficiary "John Doe"
+    And the user enters a transfer amount "5000"
+    And the user submits the transfer request
+    And the user enters the correct OTP "123456"
+    Then the transfer should be processed
+    And a confirmation message "Transfer successful" is displayed
+    And the transaction appears in the history
 
-  Scenario: Verify transaction history displays the recent transfer record
-    When the user opens the Transaction History screen
-    Then the most recent entry shows the correct amount, beneficiary, and status "Success"
+  Scenario: Transfer fails after three incorrect OTP attempts
+    When the user initiates a transfer of "3000" to "John Doe"
+    And the user enters an incorrect OTP three times
+    Then the transaction should be cancelled
+    And an error message "OTP verification failed. Transaction cancelled." is shown
 
-  Scenario Outline: Verify transfer fails with invalid inputs
-    When the user attempts a transfer with amount <amount>
-    And requests OTP
-    And enters OTP <otp>
-    Then the system displays error message "<expectedMessage>"
+  Scenario Outline: Validate transfer amount limits
+    When the user attempts to transfer "<amount>" rupees
+    Then the system should display "<message>"
 
     Examples:
-      | amount | otp     | expectedMessage                     |
-      | 150000 | N/A     | Transfer amount exceeds limit       |
-      | 5000   | 000000  | Invalid OTP                         |
+      | amount | message                                          |
+      | 0      | "Transfer amount must be at least ₹1"           |
+      | 1000000| "Transfer amount exceeds the maximum limit ₹1,00,000" |
+      | 5000   | "Transfer amount is valid"
